@@ -5,12 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\ChargingStation;
 use App\Models\Vehicle;
+use App\Services\ChargingIntelligenceService;
+use App\Services\TelematicsService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class CustomerDashboardController extends Controller
 {
+    public function __construct(
+        private readonly ChargingIntelligenceService $chargingIntelligence,
+        private readonly TelematicsService $telematics,
+    ) {
+    }
+
     public function index(Request $request): View|RedirectResponse
     {
         $user = $request->user();
@@ -35,17 +43,28 @@ class CustomerDashboardController extends Controller
         ];
 
         $recommendedVehicles = Vehicle::query()
+            ->with('latestTelemetry')
             ->where('status', 'available')
             ->when($user->preferred_zone, fn ($query, $zone) => $query->orderByRaw('location_zone = ? desc', [$zone]))
             ->orderByDesc('battery_soc')
             ->take(3)
             ->get();
+        $this->telematics->attachSummaries($recommendedVehicles);
 
-        $stationHighlights = ChargingStation::query()
-            ->orderByDesc('available_ports')
-            ->orderBy('distance_from_hub_km')
+        $stationHighlights = $this->chargingIntelligence->attachSignals(
+            ChargingStation::query()->get()
+        )
+            ->sortByDesc('ranking_score')
             ->take(2)
-            ->get();
+            ->values();
+
+        $upcomingTrips->each(function (Booking $booking): void {
+            $booking->setAttribute('trip_confidence_label', match (true) {
+                $booking->projected_return_soc < 20 => 'Intervention needed',
+                $booking->projected_return_soc < 30 => 'Charge stop recommended',
+                default => 'Trip confidence good',
+            });
+        });
 
         return view('customer.dashboard', [
             'customer' => $user,

@@ -76,6 +76,14 @@
                         <span>Ends</span>
                         <strong>{{ $booking->end_at->format('M d, h:i A') }}</strong>
                     </div>
+                    <div class="metric-card">
+                        <span>Projected return</span>
+                        <strong>{{ $booking->projected_return_soc }}%</strong>
+                    </div>
+                    <div class="metric-card">
+                        <span>Energy plan</span>
+                        <strong>{{ $booking->projected_return_soc < 30 ? 'Charge stop advised' : 'Within safe buffer' }}</strong>
+                    </div>
                 </div>
             </article>
         @empty

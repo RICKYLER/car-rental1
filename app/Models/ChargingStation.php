@@ -17,9 +17,14 @@ class ChargingStation extends Model
         'connector_type',
         'total_ports',
         'available_ports',
+        'live_availability',
         'price_per_kwh',
         'distance_from_hub_km',
         'status',
+        'power_kw',
+        'operational_status',
+        'confidence_score',
+        'is_partner_hub',
         'latitude',
         'longitude',
     ];
@@ -32,6 +37,10 @@ class ChargingStation extends Model
         return [
             'price_per_kwh' => 'decimal:2',
             'distance_from_hub_km' => 'decimal:1',
+            'live_availability' => 'integer',
+            'power_kw' => 'integer',
+            'confidence_score' => 'integer',
+            'is_partner_hub' => 'boolean',
             'latitude' => 'float',
             'longitude' => 'float',
         ];

@@ -6,6 +6,7 @@
     @php
         $latestBooking = $vehicle->bookings->first();
         $latestCharging = $vehicle->chargingSessions->first();
+        $telemetry = $vehicle->telemetry_summary;
     @endphp
 
     <section class="detail-hero">
@@ -20,17 +21,25 @@
                     <strong>{{ $vehicle->battery_soc }}%</strong>
                 </div>
                 <div class="metric-card">
-                    <span>Estimated range</span>
-                    <strong>{{ $vehicle->estimated_range_km }} km</strong>
+                    <span>{{ $telemetry['freshness_label'] }} range</span>
+                    <strong>{{ $telemetry['range_km'] }} km</strong>
                 </div>
                 <div class="metric-card">
                     <span>Battery health</span>
                     <strong>{{ $vehicle->battery_health }}%</strong>
                 </div>
                 <div class="metric-card">
-                    <span>Connector</span>
-                    <strong>{{ $vehicle->connector_type }}</strong>
+                    <span>Signal</span>
+                    <strong>{{ $telemetry['freshness_label'] }}</strong>
                 </div>
+            </div>
+
+            <div class="telemetry-pills">
+                <span class="signal-pill signal-pill--{{ $telemetry['confidence_tone'] }}">{{ $telemetry['signal_label'] }}</span>
+                @if ($telemetry['observed_at'])
+                    <span class="signal-pill">Observed {{ $telemetry['observed_at']->format('M d, h:i A') }}</span>
+                @endif
+                <span class="signal-pill">Accuracy {{ $telemetry['position_accuracy_m'] ?? 'N/A' }} m</span>
             </div>
 
             <div class="hero__actions">
@@ -56,12 +65,12 @@
                 </article>
                 <article class="list-card">
                     <div>
-                        <h3>Current location</h3>
-                        <p>Last seen {{ optional($vehicle->last_seen_at)->diffForHumans() ?? 'N/A' }}</p>
+                        <h3>Current location and trust state</h3>
+                        <p>{{ $telemetry['summary'] }}</p>
                     </div>
                     <div class="list-card__meta">
                         <strong>{{ $vehicle->location_zone }}</strong>
-                        <span>{{ $vehicle->plate_number }}</span>
+                        <span>{{ $vehicle->plate_number }} &middot; {{ $telemetry['freshness_label'] }}</span>
                     </div>
                 </article>
                 <article class="list-card">
@@ -91,11 +100,11 @@
                     <article class="list-card">
                         <div>
                             <h3>{{ $station->name }}</h3>
-                            <p>{{ $station->location }}</p>
+                            <p>{{ $station->location }} &middot; {{ $station->confidence_summary }}</p>
                         </div>
                         <div class="list-card__meta">
-                            <strong>{{ $station->available_ports }}/{{ $station->total_ports }} ports</strong>
-                            <span>{{ number_format((float) $station->distance_from_hub_km, 1) }} km away</span>
+                            <strong>{{ $station->live_ports }}/{{ $station->total_ports }} ports</strong>
+                            <span>{{ $station->risk_label }} &middot; {{ number_format((float) $station->distance_from_hub_km, 1) }} km away</span>
                         </div>
                     </article>
                 @endforeach

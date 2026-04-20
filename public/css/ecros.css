@@ -1101,3 +1101,108 @@ textarea {
         justify-content: space-between;
     }
 }
+
+.badge,
+.signal-pill {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.badge {
+    background: var(--secondary);
+    color: var(--text);
+}
+
+.badge--good,
+.signal-pill--good {
+    background: rgba(34, 197, 94, 0.14);
+    color: var(--primary-strong);
+}
+
+.badge--warn,
+.signal-pill--warn {
+    background: rgba(245, 158, 11, 0.14);
+    color: #b45309;
+}
+
+.badge--danger,
+.signal-pill--danger {
+    background: rgba(239, 68, 68, 0.14);
+    color: #b91c1c;
+}
+
+.telemetry-pills,
+.settings-form,
+.simulation-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.telemetry-pills {
+    grid-template-columns: repeat(auto-fit, minmax(160px, max-content));
+}
+
+.signal-pill {
+    background: rgba(17, 32, 22, 0.06);
+    color: var(--text);
+}
+
+.vehicle-card__telemetry-top,
+.toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toggle-row {
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-radius: 20px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.68);
+}
+
+.toggle-row span {
+    display: grid;
+    gap: 4px;
+}
+
+.toggle-row small {
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.toggle-row input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+}
+
+.simulation-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.simulation-card {
+    display: grid;
+    gap: 16px;
+    padding: 20px;
+    border-radius: 24px;
+    border: 1px solid var(--line);
+    background: var(--surface-soft);
+}
+
+@media (max-width: 760px) {
+    .toggle-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .telemetry-pills {
+        grid-template-columns: 1fr;
+    }
+}

@@ -5,8 +5,12 @@ namespace Database\Seeders;
 use App\Models\Booking;
 use App\Models\ChargingSession;
 use App\Models\ChargingStation;
+use App\Models\SecurityEvent;
+use App\Models\SystemSetting;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Services\RemoteCommandService;
+use App\Services\TelematicsService;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +22,8 @@ class EcrosSeeder extends Seeder
      */
     public function run(): void
     {
+        SecurityEvent::query()->delete();
+        SystemSetting::query()->delete();
         ChargingSession::query()->delete();
         Booking::query()->delete();
         Vehicle::query()->delete();
@@ -28,6 +34,8 @@ class EcrosSeeder extends Seeder
             'mavy@ecros.test',
             'commuter@ecros.test',
         ])->delete();
+
+        SystemSetting::putValue('v2g_enabled', false, 'boolean');
 
         User::query()->create([
             'name' => 'Lowell Orcullo',
@@ -73,9 +81,14 @@ class EcrosSeeder extends Seeder
                 'connector_type' => 'CCS2',
                 'total_ports' => 6,
                 'available_ports' => 2,
+                'live_availability' => 2,
                 'price_per_kwh' => 13.50,
                 'distance_from_hub_km' => 1.4,
                 'status' => 'online',
+                'power_kw' => 120,
+                'operational_status' => 'online',
+                'confidence_score' => 92,
+                'is_partner_hub' => true,
                 'latitude' => 14.5995000,
                 'longitude' => 120.9842000,
             ],
@@ -86,9 +99,14 @@ class EcrosSeeder extends Seeder
                 'connector_type' => 'CCS2',
                 'total_ports' => 4,
                 'available_ports' => 1,
+                'live_availability' => 1,
                 'price_per_kwh' => 12.80,
                 'distance_from_hub_km' => 2.1,
                 'status' => 'online',
+                'power_kw' => 150,
+                'operational_status' => 'online',
+                'confidence_score' => 88,
+                'is_partner_hub' => true,
                 'latitude' => 14.6112000,
                 'longitude' => 121.0215000,
             ],
@@ -99,9 +117,14 @@ class EcrosSeeder extends Seeder
                 'connector_type' => 'Type 2',
                 'total_ports' => 8,
                 'available_ports' => 5,
+                'live_availability' => 1,
                 'price_per_kwh' => 11.40,
                 'distance_from_hub_km' => 3.9,
-                'status' => 'online',
+                'status' => 'busy',
+                'power_kw' => 22,
+                'operational_status' => 'constrained',
+                'confidence_score' => 64,
+                'is_partner_hub' => false,
                 'latitude' => 14.5660000,
                 'longitude' => 120.9918000,
             ],
@@ -322,5 +345,99 @@ class EcrosSeeder extends Seeder
             'energy_kwh' => 27.6,
             'estimated_cost' => 353.28,
         ]);
+
+        $telematics = app(TelematicsService::class);
+        $telematics->recordLiveSnapshot($vehicles[0], [
+            'observed_at' => now()->subMinutes(2),
+            'battery_soc' => 86,
+            'estimated_range_km' => 248,
+            'position_accuracy_m' => 11,
+            'gps_latitude' => 14.6112000,
+            'gps_longitude' => 121.0215000,
+            'notes' => 'Urban telemetry feed healthy.',
+        ]);
+        $telematics->syncBufferedSnapshot($vehicles[1], [
+            'battery_soc' => 74,
+            'estimated_range_km' => 291,
+            'position_accuracy_m' => 24,
+            'gps_latitude' => 14.6029000,
+            'gps_longitude' => 120.9886000,
+            'notes' => 'Recovered after tunnel dead zone.',
+        ], now()->subMinutes(4));
+        $telematics->recordLiveSnapshot($vehicles[2], [
+            'observed_at' => now()->subMinute(),
+            'battery_soc' => 28,
+            'estimated_range_km' => 118,
+            'position_accuracy_m' => 8,
+            'gps_latitude' => 14.5995000,
+            'gps_longitude' => 120.9842000,
+            'notes' => 'Charging bay telemetry nominal.',
+        ]);
+        $telematics->recordLiveSnapshot($vehicles[3], [
+            'observed_at' => now()->subMinutes(9),
+            'battery_soc' => 63,
+            'estimated_range_km' => 280,
+            'position_accuracy_m' => 14,
+            'gps_latitude' => 14.5660000,
+            'gps_longitude' => 120.9918000,
+            'notes' => 'Previous trusted route point.',
+        ]);
+        $telematics->syncBufferedSnapshot($vehicles[3], [
+            'battery_soc' => 61,
+            'estimated_range_km' => 258,
+            'position_accuracy_m' => 41,
+            'gps_latitude' => 15.0451000,
+            'gps_longitude' => 121.8075000,
+            'notes' => 'Buffered sync after route discontinuity.',
+        ], now()->subMinutes(4));
+        $telematics->recordLiveSnapshot($vehicles[4], [
+            'observed_at' => now()->subMinutes(16),
+            'received_at' => now()->subMinutes(8),
+            'connectivity_status' => 'offline',
+            'battery_source' => 'estimated',
+            'sync_delay_seconds' => 480,
+            'battery_soc' => 91,
+            'estimated_range_km' => 248,
+            'position_accuracy_m' => 85,
+            'gps_latitude' => 14.6098000,
+            'gps_longitude' => 121.0403000,
+            'notes' => 'Maintenance unit offline in a signal dead zone.',
+        ]);
+
+        SecurityEvent::query()->create([
+            'actor_email' => 'unknown.ops@invalid.test',
+            'event_type' => 'failed_login',
+            'severity' => 'watch',
+            'result_status' => 'blocked',
+            'ip_address' => '10.24.18.11',
+            'description' => 'Rejected login attempt.',
+            'metadata' => ['seeded' => true],
+            'detected_at' => now()->subMinutes(40),
+        ]);
+        SecurityEvent::query()->create([
+            'actor_email' => 'unknown.ops@invalid.test',
+            'event_type' => 'failed_login',
+            'severity' => 'watch',
+            'result_status' => 'blocked',
+            'ip_address' => '10.24.18.11',
+            'description' => 'Rejected login attempt.',
+            'metadata' => ['seeded' => true],
+            'detected_at' => now()->subMinutes(26),
+        ]);
+        SecurityEvent::query()->create([
+            'actor_email' => 'unknown.ops@invalid.test',
+            'event_type' => 'failed_login',
+            'severity' => 'critical',
+            'result_status' => 'blocked',
+            'ip_address' => '10.24.18.11',
+            'description' => 'Rejected login attempt.',
+            'metadata' => ['seeded' => true],
+            'detected_at' => now()->subMinutes(14),
+        ]);
+
+        $remoteCommands = app(RemoteCommandService::class);
+        $admin = User::query()->where('email', 'ops.manager@ecros.test')->firstOrFail();
+        $remoteCommands->issue($admin, $vehicles[3], 'unlock', 'Contactless executive handover.', true, '127.0.0.1');
+        $remoteCommands->issue($admin, $vehicles[2], 'immobilize', 'Rejected without step-up verification.', false, '127.0.0.1');
     }
 }

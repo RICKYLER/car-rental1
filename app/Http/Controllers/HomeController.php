@@ -5,10 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\ChargingStation;
 use App\Models\Vehicle;
+use App\Services\ChargingIntelligenceService;
+use App\Services\TelematicsService;
 use Illuminate\Contracts\View\View;
 
 class HomeController extends Controller
 {
+    public function __construct(
+        private readonly ChargingIntelligenceService $chargingIntelligence,
+        private readonly TelematicsService $telematics,
+    ) {
+    }
+
     public function index(): View
     {
         $availableVehicles = Vehicle::where('status', 'available')->count();
@@ -55,16 +63,19 @@ class HomeController extends Controller
         ];
 
         $featuredVehicles = Vehicle::query()
+            ->with('latestTelemetry')
             ->orderByRaw("case status when 'available' then 0 when 'charging' then 1 when 'reserved' then 2 else 3 end")
             ->orderByDesc('battery_soc')
             ->take(4)
             ->get();
+        $this->telematics->attachSummaries($featuredVehicles);
 
-        $stationHighlights = ChargingStation::query()
-            ->orderByDesc('available_ports')
-            ->orderBy('distance_from_hub_km')
+        $stationHighlights = $this->chargingIntelligence->attachSignals(
+            ChargingStation::query()->get()
+        )
+            ->sortByDesc('ranking_score')
             ->take(3)
-            ->get();
+            ->values();
 
         $recentBookings = Booking::query()
             ->with(['user', 'vehicle'])

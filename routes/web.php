@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminRemoteCommandController;
+use App\Http\Controllers\AdminSystemSettingController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -42,4 +44,6 @@ Route::middleware('auth')->group(function (): void {
 
 Route::middleware(['auth', 'role:admin'])->group(function (): void {
     Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::post('/admin/remote-commands', [AdminRemoteCommandController::class, 'store'])->name('admin.remote-commands.store');
+    Route::post('/admin/settings/v2g', [AdminSystemSettingController::class, 'updateV2g'])->name('admin.settings.v2g');
 });

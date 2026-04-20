@@ -7,6 +7,8 @@ use App\Models\ChargingSession;
 use App\Models\ChargingStation;
 use App\Models\Vehicle;
 use App\Services\BookingEstimator;
+use App\Services\ChargingIntelligenceService;
+use App\Services\TelematicsService;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -15,8 +17,11 @@ use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
-    public function __construct(private readonly BookingEstimator $estimator)
-    {
+    public function __construct(
+        private readonly BookingEstimator $estimator,
+        private readonly ChargingIntelligenceService $chargingIntelligence,
+        private readonly TelematicsService $telematics,
+    ) {
     }
 
     public function index(Request $request): View
@@ -46,18 +51,42 @@ class BookingController extends Controller
     public function create(Request $request): View
     {
         $vehicles = Vehicle::query()
+            ->with('latestTelemetry')
             ->where('status', 'available')
             ->orderByDesc('battery_soc')
             ->get();
+        $this->telematics->attachSummaries($vehicles);
 
-        $selectedVehicle = $request->filled('vehicle')
-            ? $vehicles->firstWhere('id', (int) $request->integer('vehicle'))
+        $selectedVehicleId = (int) ($request->session()->getOldInput('vehicle_id') ?? $request->integer('vehicle'));
+
+        $selectedVehicle = $selectedVehicleId > 0
+            ? $vehicles->firstWhere('id', $selectedVehicleId)
             : $vehicles->first();
+
+        $previewQuote = null;
+        $recommendedStations = collect();
+
+        if ($selectedVehicle) {
+            $startAt = $this->parseBookingTime(
+                $request->session()->getOldInput('start_at'),
+                now()->addDay(),
+            );
+            $endAt = $this->parseBookingTime(
+                $request->session()->getOldInput('end_at'),
+                now()->addDays(2),
+            );
+            $distance = (int) ($request->session()->getOldInput('estimated_distance_km') ?? 80);
+
+            $previewQuote = $this->estimator->estimate($selectedVehicle, $startAt, $endAt, $distance);
+            $recommendedStations = $this->chargingIntelligence->rankForVehicle($selectedVehicle);
+        }
 
         return view('bookings.create', [
             'vehicles' => $vehicles,
             'selectedVehicle' => $selectedVehicle,
             'customer' => $request->user(),
+            'previewQuote' => $previewQuote,
+            'recommendedStations' => $recommendedStations,
         ]);
     }
 
@@ -89,6 +118,14 @@ class BookingController extends Controller
                 ]);
         }
 
+        if ((bool) $quote['requires_intervention']) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'estimated_distance_km' => 'Projected return charge falls below the 20% safety floor. Shorten the route or plan a compatible charging stop first.',
+                ]);
+        }
+
         $booking = DB::transaction(function () use ($data, $vehicle, $startAt, $endAt, $quote, $user) {
             $user->forceFill([
                 'preferred_zone' => $data['pickup_location'],
@@ -116,7 +153,7 @@ class BookingController extends Controller
 
             $vehicle->update(['status' => 'reserved']);
 
-            if ($quote['projected_return_soc'] < 30) {
+            if ((bool) $quote['needs_charging_fallback']) {
                 $station = ChargingStation::query()
                     ->where('connector_type', $vehicle->connector_type)
                     ->where('available_ports', '>', 0)
@@ -145,6 +182,19 @@ class BookingController extends Controller
 
         return redirect()
             ->route('bookings.index')
-            ->with('status', "Booking {$booking->reference} confirmed. The mock fleet schedule and billing figures were updated.");
+            ->with('status', "Booking {$booking->reference} confirmed. Trip confidence, charging fallback, and EV pricing guidance were updated.");
+    }
+
+    private function parseBookingTime(mixed $value, Carbon $fallback): Carbon
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return $fallback;
+        }
+
+        try {
+            return Carbon::parse($value);
+        } catch (\Throwable) {
+            return $fallback;
+        }
     }
 }

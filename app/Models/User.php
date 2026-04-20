@@ -56,6 +56,21 @@ class User extends Authenticatable implements CanResetPasswordContract
         return $this->hasMany(Booking::class);
     }
 
+    public function requestedRemoteCommands(): HasMany
+    {
+        return $this->hasMany(RemoteCommand::class, 'requested_by');
+    }
+
+    public function approvedRemoteCommands(): HasMany
+    {
+        return $this->hasMany(RemoteCommand::class, 'approved_by');
+    }
+
+    public function securityEvents(): HasMany
+    {
+        return $this->hasMany(SecurityEvent::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';

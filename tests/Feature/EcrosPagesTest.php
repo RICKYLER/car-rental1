@@ -31,6 +31,7 @@ class EcrosPagesTest extends TestCase
         $this->get('/fleet')
             ->assertOk()
             ->assertSee('Nissan Leaf City')
+            ->assertSee('Recovered via delayed sync')
             ->assertSee('Choose the EV that fits your route, battery needs, and pickup zone.');
     }
 

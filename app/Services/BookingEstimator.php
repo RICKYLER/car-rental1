@@ -7,6 +7,10 @@ use Carbon\CarbonInterface;
 
 class BookingEstimator
 {
+    public const WARNING_RETURN_SOC = 30;
+
+    public const MINIMUM_RETURN_SOC = 20;
+
     /**
      * @return array<string, float|int>
      */
@@ -20,11 +24,16 @@ class BookingEstimator
         $availableEnergy = (float) $vehicle->battery_capacity_kwh * ($vehicle->battery_soc / 100);
         $estimatedEnergyKwh = round($availableEnergy * $distanceShare, 1);
         $projectedReturnSoc = max(0, (int) round($vehicle->battery_soc * (1 - $distanceShare)));
+        $needsChargingFallback = $projectedReturnSoc < self::WARNING_RETURN_SOC;
+        $requiresIntervention = $projectedReturnSoc < self::MINIMUM_RETURN_SOC;
 
         $baseCost = round((float) $vehicle->daily_rate * $rentalDays, 2);
         $distanceCost = round((float) $vehicle->per_km_rate * $distanceKm, 2);
         $energyCost = round((float) $vehicle->energy_rate * $estimatedEnergyKwh, 2);
         $batteryWearCost = round($estimatedEnergyKwh * 0.65, 2);
+        $returnIncentiveCredit = $projectedReturnSoc >= 40 ? 80.00 : 0.0;
+        $deepDischargeFee = $projectedReturnSoc < 15 ? 220.00 : 0.0;
+        $totalCost = round($baseCost + $distanceCost + $energyCost + $batteryWearCost + $deepDischargeFee - $returnIncentiveCredit, 2);
 
         return [
             'rental_days' => $rentalDays,
@@ -32,11 +41,17 @@ class BookingEstimator
             'safe_range_km' => $safeRangeKm,
             'estimated_energy_kwh' => $estimatedEnergyKwh,
             'projected_return_soc' => $projectedReturnSoc,
+            'warning_return_soc' => self::WARNING_RETURN_SOC,
+            'minimum_return_soc' => self::MINIMUM_RETURN_SOC,
+            'needs_charging_fallback' => (int) $needsChargingFallback,
+            'requires_intervention' => (int) $requiresIntervention,
+            'return_incentive_credit' => $returnIncentiveCredit,
+            'deep_discharge_fee' => $deepDischargeFee,
             'base_cost' => $baseCost,
             'distance_cost' => $distanceCost,
             'energy_cost' => $energyCost,
             'battery_wear_cost' => $batteryWearCost,
-            'total_cost' => round($baseCost + $distanceCost + $energyCost + $batteryWearCost, 2),
+            'total_cost' => $totalCost,
         ];
     }
 }

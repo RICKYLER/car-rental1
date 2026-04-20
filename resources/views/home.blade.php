@@ -74,11 +74,11 @@
                     <article class="list-card">
                         <div>
                             <h3>{{ $spotlightStation->name }}</h3>
-                            <p>{{ $spotlightStation->zone }} &middot; {{ $spotlightStation->connector_type }}</p>
+                            <p>{{ $spotlightStation->zone }} &middot; {{ $spotlightStation->connector_type }} &middot; {{ $spotlightStation->confidence_summary }}</p>
                         </div>
                         <div class="list-card__meta">
-                            <strong>{{ $spotlightStation->available_ports }}/{{ $spotlightStation->total_ports }} ports</strong>
-                            <span>{{ number_format((float) $spotlightStation->distance_from_hub_km, 1) }} km away</span>
+                            <strong>{{ $spotlightStation->risk_label }}</strong>
+                            <span>{{ $spotlightStation->live_ports }}/{{ $spotlightStation->total_ports }} ports &middot; {{ number_format((float) $spotlightStation->distance_from_hub_km, 1) }} km away</span>
                         </div>
                     </article>
                 @endif
@@ -165,11 +165,11 @@
                     <article class="list-card">
                         <div>
                             <h3>{{ $station->name }}</h3>
-                            <p>{{ $station->zone }} &middot; {{ $station->connector_type }}</p>
+                            <p>{{ $station->zone }} &middot; {{ $station->connector_type }} &middot; {{ $station->confidence_summary }}</p>
                         </div>
                         <div class="list-card__meta">
-                            <strong>{{ $station->available_ports }}/{{ $station->total_ports }} ports</strong>
-                            <span>PHP {{ number_format((float) $station->price_per_kwh, 2) }}/kWh</span>
+                            <strong>{{ $station->risk_label }}</strong>
+                            <span>{{ $station->live_ports }}/{{ $station->total_ports }} ports &middot; PHP {{ number_format((float) $station->price_per_kwh, 2) }}/kWh</span>
                         </div>
                     </article>
                 @endforeach

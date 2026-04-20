@@ -62,8 +62,8 @@
                             <p>{{ $booking->vehicle->name }} &middot; {{ $booking->pickup_location }} to {{ $booking->dropoff_location }}</p>
                         </div>
                         <div class="list-card__meta">
-                            <strong>{{ ucfirst($booking->status) }}</strong>
-                            <span>{{ $booking->start_at->format('M d, h:i A') }}</span>
+                            <strong>{{ $booking->trip_confidence_label }}</strong>
+                            <span>{{ $booking->start_at->format('M d, h:i A') }} &middot; {{ $booking->projected_return_soc }}% projected return</span>
                         </div>
                     </article>
                 @empty
@@ -150,11 +150,11 @@
                 <article class="list-card">
                     <div>
                         <h3>{{ $station->name }}</h3>
-                        <p>{{ $station->zone }} &middot; {{ $station->connector_type }}</p>
+                        <p>{{ $station->zone }} &middot; {{ $station->connector_type }} &middot; {{ $station->confidence_summary }}</p>
                     </div>
                     <div class="list-card__meta">
-                        <strong>{{ $station->available_ports }}/{{ $station->total_ports }} ports</strong>
-                        <span>PHP {{ number_format((float) $station->price_per_kwh, 2) }}/kWh</span>
+                        <strong>{{ $station->risk_label }}</strong>
+                        <span>{{ $station->live_ports }}/{{ $station->total_ports }} ports &middot; PHP {{ number_format((float) $station->price_per_kwh, 2) }}/kWh</span>
                     </div>
                 </article>
             @endforeach

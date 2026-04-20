@@ -87,9 +87,15 @@
                         </div>
                         <div class="list-card__meta">
                             <strong>{{ $selectedVehicle->battery_soc }}%</strong>
-                            <span>{{ $selectedVehicle->estimated_range_km }} km range</span>
+                            <span>{{ $selectedVehicle->telemetry_summary['range_km'] }} km {{ strtolower($selectedVehicle->telemetry_summary['freshness_label']) }} range</span>
                         </div>
                     </article>
+                    <div class="telemetry-pills">
+                        <span class="signal-pill signal-pill--{{ $selectedVehicle->telemetry_summary['confidence_tone'] }}">
+                            {{ $selectedVehicle->telemetry_summary['freshness_label'] }}
+                        </span>
+                        <span class="signal-pill">{{ $selectedVehicle->telemetry_summary['signal_label'] }}</span>
+                    </div>
                     <div class="metric-grid metric-grid--compact">
                         <div class="metric-card metric-card--dark">
                             <span>Daily rate</span>
@@ -105,11 +111,84 @@
                         </div>
                         <div class="metric-card metric-card--dark">
                             <span>Safe range</span>
-                            <strong>{{ max($selectedVehicle->estimated_range_km - 25, 0) }} km</strong>
+                            <strong>{{ $previewQuote['safe_range_km'] ?? max($selectedVehicle->estimated_range_km - 25, 0) }} km</strong>
                         </div>
                     </div>
                 @endif
             </div>
+
+            @if ($previewQuote && $selectedVehicle)
+                <div class="panel">
+                    <span class="eyebrow">Trip confidence</span>
+                    <div class="metric-grid metric-grid--compact">
+                        <div class="metric-card">
+                            <span>Projected return</span>
+                            <strong>{{ $previewQuote['projected_return_soc'] }}%</strong>
+                        </div>
+                        <div class="metric-card">
+                            <span>Safety floor</span>
+                            <strong>{{ $previewQuote['minimum_return_soc'] }}%</strong>
+                        </div>
+                        <div class="metric-card">
+                            <span>Return credit</span>
+                            <strong>PHP {{ number_format((float) $previewQuote['return_incentive_credit'], 2) }}</strong>
+                        </div>
+                        <div class="metric-card">
+                            <span>Deep-discharge fee</span>
+                            <strong>PHP {{ number_format((float) $previewQuote['deep_discharge_fee'], 2) }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="stack-list">
+                        <article class="list-card">
+                            <div>
+                                <h3>
+                                    @if ($previewQuote['requires_intervention'])
+                                        Booking intervention required
+                                    @elseif ($previewQuote['needs_charging_fallback'])
+                                        Charge stop recommended
+                                    @else
+                                        Trip confidence looks good
+                                    @endif
+                                </h3>
+                                <p>
+                                    @if ($previewQuote['requires_intervention'])
+                                        This route returns below the minimum safe SoC. Reduce distance or rely on a compatible charger.
+                                    @elseif ($previewQuote['needs_charging_fallback'])
+                                        ECROS will reserve a charging fallback because the projected return SoC is below 30%.
+                                    @else
+                                        The selected route stays above the warning threshold with the current battery snapshot.
+                                    @endif
+                                </p>
+                            </div>
+                            <div class="list-card__meta">
+                                <strong>PHP {{ number_format((float) $previewQuote['total_cost'], 2) }}</strong>
+                                <span>Total projected cost</span>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            @endif
+
+            @if ($recommendedStations->isNotEmpty())
+                <div class="panel">
+                    <span class="eyebrow">Suggested chargers</span>
+                    <div class="stack-list">
+                        @foreach ($recommendedStations as $station)
+                            <article class="list-card">
+                                <div>
+                                    <h3>{{ $station->name }}</h3>
+                                    <p>{{ $station->confidence_summary }}</p>
+                                </div>
+                                <div class="list-card__meta">
+                                    <strong>{{ $station->risk_label }}</strong>
+                                    <span>{{ $station->live_ports }}/{{ $station->total_ports }} ports</span>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
 
             <div class="panel">
                 <span class="eyebrow">Your account</span>
@@ -126,11 +205,12 @@
                     </article>
                     <article class="list-card">
                         <div>
-                            <h3>License verification</h3>
-                            <p>Used to stamp the booking record for admin review.</p>
+                            <h3>EV trip reminders</h3>
+                            <p>Return above 40% SoC to keep your trip smoother and unlock the mock return credit.</p>
                         </div>
                         <div class="list-card__meta">
-                            <strong>{{ $customer->license_verified ? 'Verified' : 'Pending' }}</strong>
+                            <strong>{{ $customer->license_verified ? 'Verified driver' : 'Pending' }}</strong>
+                            <span>Avoid deep discharge below 15%</span>
                         </div>
                     </article>
                 </div>
