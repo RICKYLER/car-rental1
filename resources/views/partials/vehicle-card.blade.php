@@ -5,80 +5,53 @@
         'reserved' => 'status-reserved',
         default => 'status-maintenance',
     };
-
-    $rangeProgress = max(min((int) round(($vehicle->battery_soc / 100) * 100), 100), 12);
-    $telemetry = $vehicle->telemetry_summary ?? null;
-    $displayRange = $telemetry['range_km'] ?? $vehicle->estimated_range_km;
-    $freshnessLabel = $telemetry['freshness_label'] ?? 'Live';
-    $confidenceTone = $telemetry['confidence_tone'] ?? 'good';
 @endphp
 
-<article class="vehicle-card" style="--vehicle-accent: {{ $vehicle->accent_color }}">
-    <div class="vehicle-card__visual">
-        <div class="vehicle-card__visual-top">
+<article class="vehicle-card">
+    <div class="vehicle-card__visual" style="background-image: url('https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600'); background-size: cover; background-position: center;">
+        <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 40%, rgba(0,0,0,0.6) 100%);"></div>
+        
+        <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: flex-start;">
             <span class="status-pill {{ $statusClass }}">{{ ucfirst($vehicle->status) }}</span>
-            <div class="vehicle-card__telemetry-top">
-                <span class="badge badge--{{ $confidenceTone }}">{{ $freshnessLabel }}</span>
-                <span class="vehicle-card__charge">{{ $vehicle->battery_soc }}%</span>
+            <div style="background: rgba(255,255,255,0.9); padding: 4px 12px; border-radius: 999px; font-weight: 800; font-size: 0.82rem; color: #0f172a;">
+                {{ $vehicle->battery_soc }}% Charge
             </div>
         </div>
 
-        <div class="vehicle-card__badge">
-            <strong>{{ $vehicle->brand }}</strong>
-            <span>{{ $vehicle->model }} &middot; {{ $vehicle->connector_type }}</span>
+        <div style="position: absolute; bottom: 20px; left: 24px; z-index: 2; color: #fff;">
+            <strong style="font-size: 1.25rem; display: block;">{{ $vehicle->name }}</strong>
+            <span style="font-size: 0.88rem; opacity: 0.9;">{{ $vehicle->brand }} {{ $vehicle->model }}</span>
         </div>
-
-        <div class="vehicle-card__shape"></div>
     </div>
 
     <div class="vehicle-card__body">
-        <div class="vehicle-card__header">
-            <div>
-                <h3>{{ $vehicle->name }}</h3>
-                <p>{{ $vehicle->location_zone }} &middot; {{ $displayRange }} km {{ strtolower($freshnessLabel) }} range</p>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding-bottom: 20px; border-bottom: 1px solid var(--line);">
+            <div style="text-align: center;">
+                <span style="display: block; font-size: 0.65rem; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 4px;">Range</span>
+                <strong style="font-size: 0.95rem;">{{ $vehicle->estimated_range_km }}km</strong>
             </div>
-            <strong class="vehicle-card__price">PHP {{ number_format((float) $vehicle->daily_rate, 0) }}/day</strong>
-        </div>
-
-        <div class="vehicle-card__meter">
-            <div class="vehicle-card__meter-copy">
-                <span>Battery confidence</span>
-                <strong>{{ $vehicle->battery_health }}% health / {{ $freshnessLabel }} feed</strong>
+            <div style="text-align: center; border-inline: 1px solid var(--line);">
+                <span style="display: block; font-size: 0.65rem; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 4px;">Type</span>
+                <strong style="font-size: 0.95rem;">{{ $vehicle->connector_type }}</strong>
             </div>
-            <div class="meter">
-                <span class="meter__fill" style="width: {{ $rangeProgress }}%"></span>
+            <div style="text-align: center;">
+                <span style="display: block; font-size: 0.65rem; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 4px;">Rate</span>
+                <strong style="font-size: 0.95rem;">₱{{ number_format($vehicle->daily_rate, 0) }}</strong>
             </div>
         </div>
 
-        @if ($telemetry)
-            <div class="telemetry-pills">
-                <span class="signal-pill signal-pill--{{ $confidenceTone }}">{{ $telemetry['signal_label'] }}</span>
-                @if ($telemetry['observed_at'])
-                    <span class="signal-pill">Updated {{ $telemetry['observed_at']->diffForHumans() }}</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.82rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ $vehicle->location_zone }}
+            </div>
+            <a href="{{ route('fleet.show', $vehicle) }}" class="btn btn-primary" style="min-width: 0; padding: 10px 20px; font-size: 0.82rem;">
+                @if($vehicle->status === 'available')
+                    Book Now
+                @else
+                    Details
                 @endif
-            </div>
-        @endif
-
-        <div class="metric-grid metric-grid--compact">
-            <div class="metric-card">
-                <span>Rate / km</span>
-                <strong>PHP {{ number_format((float) $vehicle->per_km_rate, 2) }}</strong>
-            </div>
-            <div class="metric-card">
-                <span>Energy</span>
-                <strong>PHP {{ number_format((float) $vehicle->energy_rate, 2) }}/kWh</strong>
-            </div>
-        </div>
-
-        <p class="vehicle-card__copy">{{ $vehicle->description }}</p>
-
-        <div class="vehicle-card__actions">
-            <a class="btn btn-secondary" href="{{ route('fleet.show', $vehicle) }}">View details</a>
-            @if ($vehicle->status === 'available')
-                <a class="btn btn-primary" href="{{ route('bookings.create', ['vehicle' => $vehicle->id]) }}">Book this EV</a>
-            @else
-                <span class="muted-note">Unavailable for a new trip right now</span>
-            @endif
+            </a>
         </div>
     </div>
 </article>

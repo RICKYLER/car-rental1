@@ -44,6 +44,9 @@ Route::middleware('auth')->group(function (): void {
 
 Route::middleware(['auth', 'role:admin'])->group(function (): void {
     Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/live-map', [App\Http\Controllers\Admin\LiveMapController::class, 'index'])->name('admin.live-map');
+    Route::get('/admin/earnings', [App\Http\Controllers\Admin\EarningsReportController::class, 'index'])->name('admin.earnings');
+    Route::get('/admin/customers', [App\Http\Controllers\Admin\CustomerManagementController::class, 'index'])->name('admin.customers');
     Route::post('/admin/remote-commands', [AdminRemoteCommandController::class, 'store'])->name('admin.remote-commands.store');
     Route::post('/admin/settings/v2g', [AdminSystemSettingController::class, 'updateV2g'])->name('admin.settings.v2g');
 });

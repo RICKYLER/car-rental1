@@ -36,18 +36,27 @@
 
                     <div class="auth-feature-list">
                         <article class="list-card">
+                            <div class="list-card__icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            </div>
                             <div>
                                 <h3>Role-aware navigation</h3>
                                 <p>Customers land on a trip dashboard. Admins go directly to fleet operations.</p>
                             </div>
                         </article>
                         <article class="list-card">
+                            <div class="list-card__icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            </div>
                             <div>
                                 <h3>Password reset support</h3>
                                 <p>Reset links use Laravel's built-in broker and current mail log driver.</p>
                             </div>
                         </article>
                         <article class="list-card">
+                            <div class="list-card__icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                            </div>
                             <div>
                                 <h3>Demo-ready accounts</h3>
                                 <p>Evaluators can access both roles without extra setup or database editing.</p>

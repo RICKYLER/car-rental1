@@ -1,203 +1,91 @@
 @extends('layouts.app')
 
-@section('title', 'ECROS Overview')
+@section('title', 'Welcome | ECROS')
 
 @section('content')
-    @php
-        $spotlightBooking = $recentBookings->first();
-        $spotlightStation = $stationHighlights->first();
-    @endphp
-
-    <section class="hero hero--home">
-        <div class="hero__copy panel panel--accent">
-            <span class="eyebrow">Customer mobile experience</span>
-            <h1>Find a charged EV, book fast, and keep every trip feeling premium.</h1>
-            <p class="lead">
-                ECROS turns electric rentals into a cleaner customer journey with live battery visibility,
-                range-aware matching, and booking details that feel closer to a polished app than an admin tool.
+    <header style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 64px; border-radius: 32px; color: #fff; position: relative; overflow: hidden; margin-bottom: 32px;">
+        <div style="position: relative; z-index: 10; max-width: 800px;">
+            <span class="eyebrow" style="background: rgba(255,255,255,0.1); color: #fff; margin-bottom: 16px;">Platform Overview</span>
+            <h1 style="font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.1; margin-bottom: 24px;">Sustainable mobility, managed intelligently.</h1>
+            <p style="font-size: 1.25rem; opacity: 0.8; margin-bottom: 32px; line-height: 1.6;">
+                ECROS provides a seamless bridge between electric vehicle fleet operations and premium customer rental experiences.
             </p>
-            <div class="hero__actions">
-                @auth
-                    <a class="btn btn-primary" href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('bookings.create') }}">
-                        {{ auth()->user()->isAdmin() ? 'Open admin board' : 'Book an EV' }}
-                    </a>
-                    <a class="btn btn-secondary" href="{{ auth()->user()->isAdmin() ? route('bookings.index') : route('dashboard') }}">
-                        {{ auth()->user()->isAdmin() ? 'Review trips' : 'Open dashboard' }}
-                    </a>
-                @else
-                    <a class="btn btn-primary" href="{{ route('login') }}">Log in to book</a>
-                    <a class="btn btn-secondary" href="{{ route('register') }}">Create customer account</a>
-                @endauth
-            </div>
-            <div class="hero-pill-row">
-                <span class="hero-pill">Battery-safe trip planning</span>
-                <span class="hero-pill">Transparent pricing</span>
-                <span class="hero-pill">Live charging availability</span>
+            <div style="display: flex; gap: 16px;">
+                <a href="{{ route('fleet.index') }}" class="btn btn-primary" style="background: #fff; color: #0f172a;">Explore Fleet</a>
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary" style="border-color: rgba(255,255,255,0.2); color: #fff;">Admin Command</a>
             </div>
         </div>
+        <div style="position: absolute; right: -50px; bottom: -50px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%); border-radius: 999px;"></div>
+    </header>
 
-        <div class="hero__stats">
-            <div class="panel panel--dark showcase-card">
-                <span class="eyebrow eyebrow--dark">Live telemetry</span>
-                <h2>Customer app snapshot</h2>
-                <div class="metric-grid">
-                    @foreach ($metrics as $metric)
-                        <div class="metric-card metric-card--dark">
-                            <span>{{ $metric['label'] }}</span>
-                            <strong>{{ $metric['value'] }}</strong>
-                            <small>{{ $metric['caption'] }}</small>
-                        </div>
-                    @endforeach
+    <div class="metric-grid" style="margin-bottom: 48px;">
+        @foreach ($metrics as $index => $metric)
+            <div class="metric-card">
+                <div class="metric-card__icon" style="background: {{ ['#eff6ff', '#f0fdf4', '#fdf4ff', '#fff7ed'][$index] ?? 'var(--primary-soft)' }}; color: {{ ['#3b82f6', '#22c55e', '#d946ef', '#f97316'][$index] ?? 'var(--primary)' }};">
+                    @switch($index)
+                        @case(0) {{-- Fleet Ready --}}
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+                            @break
+                        @case(1) {{-- Avg Battery --}}
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="10" x="2" y="7" rx="2"/><line x1="22" x2="22" y1="11" y2="13"/><line x1="6" x2="6" y1="7" y2="17"/></svg>
+                            @break
+                        @case(2) {{-- Active Journeys --}}
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                            @break
+                        @case(3) {{-- CO2 Avoided --}}
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 21 2c-2 5-2.5 7-3.4 13.2A7 7 0 0 1 11 20z"/></svg>
+                            @break
+                    @endswitch
+                </div>
+                <div class="metric-card__body">
+                    <span>{{ $metric['label'] }}</span>
+                    <strong>{{ $metric['value'] }}</strong>
+                    <div style="font-size: 0.82rem; color: var(--muted); line-height: 1.4;">{{ $metric['caption'] }}</div>
                 </div>
             </div>
+        @endforeach
+    </div>
 
-            <div class="panel quick-panel">
-                <div class="quick-panel__header">
-                    <span class="eyebrow">Ready right now</span>
-                    <strong>Plan a smooth pickup</strong>
-                </div>
-
-                @if ($spotlightBooking)
-                    <article class="list-card">
-                        <div>
-                            <h3>{{ $spotlightBooking->reference }}</h3>
-                            <p>{{ $spotlightBooking->user->name }} &middot; {{ $spotlightBooking->vehicle->name }}</p>
-                        </div>
-                        <div class="list-card__meta">
-                            <strong>{{ ucfirst($spotlightBooking->status) }}</strong>
-                            <span>PHP {{ number_format((float) $spotlightBooking->total_cost, 2) }}</span>
-                        </div>
-                    </article>
-                @endif
-
-                @if ($spotlightStation)
-                    <article class="list-card">
-                        <div>
-                            <h3>{{ $spotlightStation->name }}</h3>
-                            <p>{{ $spotlightStation->zone }} &middot; {{ $spotlightStation->connector_type }} &middot; {{ $spotlightStation->confidence_summary }}</p>
-                        </div>
-                        <div class="list-card__meta">
-                            <strong>{{ $spotlightStation->risk_label }}</strong>
-                            <span>{{ $spotlightStation->live_ports }}/{{ $spotlightStation->total_ports }} ports &middot; {{ number_format((float) $spotlightStation->distance_from_hub_km, 1) }} km away</span>
-                        </div>
-                    </article>
-                @endif
-            </div>
-        </div>
-    </section>
-
-    <section class="mode-grid">
-        <article class="panel mode-card mode-card--light">
-            <span class="mode-card__icon">01</span>
-            <span class="eyebrow">Customer app</span>
-            <h2>Browse, compare, and reserve in one calm flow.</h2>
-            <p class="lead">
-                Ideal for guests who want a polished mobile-style experience with clear battery status, range, and pricing.
-            </p>
-            <ul class="feature-points">
-                <li>Friction-light booking form</li>
-                <li>Vehicle-first browsing</li>
-                <li>Trip-safe range context</li>
-            </ul>
-            <a class="btn btn-primary" href="{{ auth()->check() ? route('dashboard') : route('register') }}">
-                {{ auth()->check() ? 'Open customer dashboard' : 'Launch customer flow' }}
-            </a>
-        </article>
-
-        <article class="panel panel--dark mode-card">
-            <span class="mode-card__icon mode-card__icon--dark">02</span>
-            <span class="eyebrow eyebrow--dark">Admin dashboard</span>
-            <h2>Monitor fleet health, charging, and live bookings.</h2>
-            <p class="lead">
-                A contrasting operations layer for dispatch, maintenance, and charging oversight without losing the cleaner visual system.
-            </p>
-            <ul class="feature-points feature-points--dark">
-                <li>Telemetry-driven alerts</li>
-                <li>Charging queue visibility</li>
-                <li>Fleet readiness tracking</li>
-            </ul>
-            <a class="btn btn-primary btn-primary--dark" href="{{ route('admin.dashboard') }}">Open admin board</a>
-        </article>
-    </section>
-
-    <section class="panel section">
+    <section style="margin-bottom: 64px;">
         <div class="section-heading">
             <div>
-                <span class="eyebrow">Why it feels better</span>
-                <h2>Customer-centered features with a more app-like tone</h2>
+                <h2>Dual-Mode Experience</h2>
+                <p style="color: var(--muted);">Choose your interface based on your operational needs.</p>
             </div>
         </div>
         <div class="feature-grid">
-            @foreach ($operations as $operation)
-                <article class="feature-card">
-                    <h3>{{ $operation['title'] }}</h3>
-                    <p>{{ $operation['copy'] }}</p>
-                </article>
-            @endforeach
+            <article class="feature-card" style="background: #fff; border-color: #e2e8f0;">
+                <div class="metric-card__icon" style="background: #f0fdf4; color: #166534; margin-bottom: 24px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                </div>
+                <h3>Customer Portal</h3>
+                <p style="margin-bottom: 24px;">A calm, map-first experience designed for finding and booking electric vehicles with ease.</p>
+                <a href="{{ route('dashboard') }}" class="btn btn-secondary" style="width: 100%;">Launch Customer App</a>
+            </article>
+
+            <article class="feature-card" style="background: #0f172a; border-color: rgba(255,255,255,0.1); color: #fff;">
+                <div class="metric-card__icon" style="background: rgba(255,255,255,0.1); color: #fff; margin-bottom: 24px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h3 style="color: #fff;">Operations Command</h3>
+                <p style="opacity: 0.7; margin-bottom: 24px;">High-density telemetry, charging queue management, and real-time fleet health monitoring.</p>
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-primary" style="width: 100%;">Enter Admin Board</a>
+            </article>
         </div>
     </section>
 
-    <section class="section">
+    <section>
         <div class="section-heading">
             <div>
-                <span class="eyebrow">Top picks</span>
-                <h2>Featured EVs with strong charge and clean availability</h2>
+                <h2>Featured Fleet</h2>
+                <p style="color: var(--muted);">Top-tier electric vehicles ready for deployment.</p>
             </div>
-            <a class="btn btn-secondary" href="{{ route('fleet.index') }}">See all vehicles</a>
+            <a href="{{ route('fleet.index') }}" class="text-link">View Full Fleet &rarr;</a>
         </div>
-        <div class="cards-grid cards-grid--vehicles">
-            @foreach ($featuredVehicles as $vehicle)
+        <div class="cards-grid--vehicles">
+            @foreach ($featuredVehicles->take(3) as $vehicle)
                 @include('partials.vehicle-card', ['vehicle' => $vehicle])
             @endforeach
-        </div>
-    </section>
-
-    <section class="section section--split">
-        <div class="panel">
-            <div class="section-heading">
-                <div>
-                    <span class="eyebrow">Charging network</span>
-                    <h2>Nearby stations that fit the customer journey</h2>
-                </div>
-            </div>
-            <div class="stack-list">
-                @foreach ($stationHighlights as $station)
-                    <article class="list-card">
-                        <div>
-                            <h3>{{ $station->name }}</h3>
-                            <p>{{ $station->zone }} &middot; {{ $station->connector_type }} &middot; {{ $station->confidence_summary }}</p>
-                        </div>
-                        <div class="list-card__meta">
-                            <strong>{{ $station->risk_label }}</strong>
-                            <span>{{ $station->live_ports }}/{{ $station->total_ports }} ports &middot; PHP {{ number_format((float) $station->price_per_kwh, 2) }}/kWh</span>
-                        </div>
-                    </article>
-                @endforeach
-            </div>
-        </div>
-
-        <div class="panel panel--dark">
-            <div class="section-heading">
-                <div>
-                    <span class="eyebrow eyebrow--dark">Recent activity</span>
-                    <h2>Sample bookings with a polished trip summary</h2>
-                </div>
-                <a class="btn btn-secondary" href="{{ route('bookings.index') }}">All bookings</a>
-            </div>
-            <div class="stack-list">
-                @foreach ($recentBookings as $booking)
-                    <article class="list-card">
-                        <div>
-                            <h3>{{ $booking->reference }}</h3>
-                            <p>{{ $booking->user->name }} &middot; {{ $booking->vehicle->name }}</p>
-                        </div>
-                        <div class="list-card__meta">
-                            <strong>{{ ucfirst($booking->status) }}</strong>
-                            <span>PHP {{ number_format((float) $booking->total_cost, 2) }}</span>
-                        </div>
-                    </article>
-                @endforeach
-            </div>
         </div>
     </section>
 @endsection

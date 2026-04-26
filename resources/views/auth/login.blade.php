@@ -44,16 +44,33 @@
 
         <div class="auth-demo-grid">
             @foreach ($demoAccounts as $account)
-                <article class="auth-demo-card">
-                    <span class="eyebrow">{{ $account['label'] }}</span>
+                <article class="auth-demo-card" onclick="fillDemo('{{ $account['email'] }}', '{{ $account['password'] }}')">
+                    <div class="auth-demo-card__header">
+                        <span class="eyebrow">{{ $account['label'] }}</span>
+                        <div class="auth-demo-card__icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </div>
+                    </div>
                     <h3>{{ $account['email'] }}</h3>
                     <p>{{ $account['description'] }}</p>
                     <div class="auth-demo-card__credentials">
-                        <span>Email: {{ $account['email'] }}</span>
-                        <span>Password: {{ $account['password'] }}</span>
+                        <span>Email: <strong>{{ $account['email'] }}</strong></span>
+                        <span>Password: <strong>{{ $account['password'] }}</strong></span>
                     </div>
                 </article>
             @endforeach
         </div>
     </div>
+
+    <script>
+        function fillDemo(email, password) {
+            document.querySelector('input[name="email"]').value = email;
+            document.querySelector('input[name="password"]').value = password;
+            
+            // Pulse the button for visual feedback
+            const button = document.querySelector('button[type="submit"]');
+            button.classList.add('pulse-once');
+            setTimeout(() => button.classList.remove('pulse-once'), 500);
+        }
+    </script>
 @endsection

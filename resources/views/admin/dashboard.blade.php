@@ -1,321 +1,169 @@
 @extends('layouts.app')
 
-@section('title', 'ECROS Admin')
+@section('title', 'Admin Dashboard | ECROS')
 
 @section('content')
-    <section class="section-heading section-heading--intro">
-        <div>
-            <span class="eyebrow">Fleet command center</span>
-            <h1>Admin telemetry, charging, and fleet readiness in a cleaner control surface.</h1>
-            <p class="lead">
-                The customer-facing polish now carries into the operations layer while preserving dark-card contrast for critical monitoring.
-            </p>
-        </div>
-    </section>
-
-    <section class="metric-grid">
-        <div class="metric-card">
-            <span>Total revenue</span>
-            <strong>PHP {{ number_format((float) $stats['revenue'], 2) }}</strong>
-        </div>
-        <div class="metric-card">
-            <span>Active rentals</span>
-            <strong>{{ $stats['activeRentals'] }}</strong>
-        </div>
-        <div class="metric-card">
-            <span>Average battery health</span>
-            <strong>{{ $stats['avgHealth'] }}%</strong>
-        </div>
-        <div class="metric-card">
-            <span>Charging jobs queued</span>
-            <strong>{{ $stats['gridReady'] }}</strong>
-        </div>
-    </section>
-
-    <section class="metric-grid">
-        <div class="metric-card">
-            <span>Downtime rate</span>
-            <strong>{{ $analytics['downtime_rate'] }}%</strong>
-        </div>
-        <div class="metric-card">
-            <span>Failed booking rate</span>
-            <strong>{{ $analytics['failed_booking_rate'] }}%</strong>
-        </div>
-        <div class="metric-card">
-            <span>Charger wait time</span>
-            <strong>{{ $analytics['charger_wait_time'] }} min</strong>
-        </div>
-        <div class="metric-card">
-            <span>Stale data rate</span>
-            <strong>{{ $analytics['stale_data_rate'] }}%</strong>
-        </div>
-    </section>
-
-    <section class="section section--split">
-        <div class="panel panel--dark">
-            <div class="section-heading">
-                <div>
-                    <span class="eyebrow eyebrow--dark">Operational alerts</span>
-                    <h2>Issues needing attention</h2>
+    <div style="display: grid; gap: 32px;">
+        {{-- Header Stats Row --}}
+        <div class="metric-grid">
+            <article class="metric-card">
+                <div class="metric-card__icon" style="background: #eff6ff; color: #3b82f6;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
                 </div>
-            </div>
-            <div class="stack-list">
-                @forelse ($alerts as $alert)
-                    <article class="alert-card">
-                        <span class="alert-card__level">{{ $alert['level'] }}</span>
-                        <h3>{{ $alert['title'] }}</h3>
-                        <p>{{ $alert['copy'] }}</p>
-                    </article>
-                @empty
-                    <article class="list-card">
-                        <div>
-                            <h3>No active alerts</h3>
-                            <p>The fleet is within the current mock thresholds.</p>
-                        </div>
-                    </article>
-                @endforelse
-            </div>
-        </div>
-
-        <div class="panel">
-            <div class="section-heading">
-                <div>
-                    <span class="eyebrow">Charging scheduler</span>
-                    <h2>Queue and live charging sessions</h2>
+                <div class="metric-card__body">
+                    <span>Active Cars</span>
+                    <strong>48</strong>
+                    <div class="metric-card__trend trend--up">+12%</div>
                 </div>
-            </div>
-            <div class="stack-list">
-                @foreach ($chargingQueue as $session)
-                    <article class="list-card">
-                        <div>
-                            <h3>{{ $session->vehicle->name }}</h3>
-                            <p>{{ $session->chargingStation->name }}</p>
-                        </div>
-                        <div class="list-card__meta">
-                            <strong>{{ ucfirst(str_replace('_', ' ', $session->status)) }}</strong>
-                            <span>Target {{ $session->target_soc }}%</span>
-                        </div>
-                    </article>
-                @endforeach
-            </div>
-        </div>
-    </section>
+            </article>
 
-    <section class="section section--split">
-        <div class="panel">
-            <div class="section-heading">
-                <div>
-                    <span class="eyebrow">Hub-first logistics</span>
-                    <h2>Relocation recommendations</h2>
+            <article class="metric-card">
+                <div class="metric-card__icon" style="background: #f0fdf4; color: #22c55e;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
                 </div>
-            </div>
-            <div class="stack-list">
-                @forelse ($relocationRecommendations as $recommendation)
-                    <article class="list-card">
-                        <div>
-                            <h3>{{ $recommendation['title'] }}</h3>
-                            <p>{{ $recommendation['copy'] }}</p>
-                        </div>
-                        <div class="list-card__meta">
-                            <strong>{{ $recommendation['label'] }}</strong>
-                        </div>
-                    </article>
-                @empty
-                    <article class="list-card">
-                        <div>
-                            <h3>No relocations suggested</h3>
-                            <p>Current low-charge pressure is within the seeded mock thresholds.</p>
-                        </div>
-                    </article>
-                @endforelse
-            </div>
-        </div>
-
-        <div class="panel panel--dark">
-            <div class="section-heading">
-                <div>
-                    <span class="eyebrow eyebrow--dark">Research toggle</span>
-                    <h2>V2G mode and smart charging baseline</h2>
+                <div class="metric-card__body">
+                    <span>Ongoing Trips</span>
+                    <strong>32</strong>
+                    <div class="metric-card__trend trend--up">+5%</div>
                 </div>
-            </div>
-            <form method="POST" action="{{ route('admin.settings.v2g') }}" class="settings-form">
-                @csrf
-                <label class="toggle-row">
-                    <span>
-                        <strong>Vehicle-to-Grid research mode</strong>
-                        <small>{{ $v2gEnabled ? 'Enabled for simulation only' : 'Disabled. Smart charging remains the production baseline.' }}</small>
-                    </span>
-                    <input type="checkbox" name="enabled" value="1" @checked($v2gEnabled)>
-                </label>
-                <button class="btn btn-secondary" type="submit">Update setting</button>
-            </form>
-        </div>
-    </section>
+            </article>
 
-    <section class="section section--split">
-        <div class="panel">
-            <div class="section-heading">
-                <div>
-                    <span class="eyebrow">Remote command security</span>
-                    <h2>Signed lock, unlock, and immobilize commands</h2>
+            <article class="metric-card">
+                <div class="metric-card__icon" style="background: #fef2f2; color: #ef4444;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
                 </div>
-            </div>
-            <form method="POST" action="{{ route('admin.remote-commands.store') }}" class="form-grid">
-                @csrf
-                <label>
-                    <span>Vehicle</span>
-                    <select name="vehicle_id" required>
-                        @foreach ($commandableVehicles as $vehicle)
-                            <option value="{{ $vehicle->id }}">{{ $vehicle->name }} - {{ ucfirst($vehicle->status) }}</option>
-                        @endforeach
-                    </select>
-                </label>
-                <label>
-                    <span>Command</span>
-                    <select name="command_type" required>
-                        <option value="lock">Lock</option>
-                        <option value="unlock">Unlock</option>
-                        <option value="immobilize">Immobilize</option>
-                    </select>
-                </label>
-                <label class="form-grid__full">
-                    <span>Justification</span>
-                    <input type="text" name="justification" value="{{ old('justification') }}" placeholder="Operational reason for this sensitive action">
-                </label>
-                <label class="form-grid__full">
-                    <span>Step-up password</span>
-                    <input type="password" name="current_password" autocomplete="current-password" required>
-                </label>
-                <div class="form-grid__full">
-                    <button class="btn btn-primary" type="submit">Sign and execute command</button>
+                <div class="metric-card__body">
+                    <span>Maintenance</span>
+                    <strong>3 Alerts</strong>
+                    <div class="metric-card__trend trend--down">Action Req</div>
                 </div>
-            </form>
+            </article>
 
-            <div class="stack-list">
-                @foreach ($remoteCommands as $command)
-                    <article class="list-card">
-                        <div>
-                            <h3>{{ ucfirst($command->command_type) }} - {{ $command->vehicle->name }}</h3>
-                            <p>{{ $command->requester->name }} &middot; {{ $command->created_at->diffForHumans() }}</p>
-                        </div>
-                        <div class="list-card__meta">
-                            <strong>{{ ucfirst($command->result_status) }}</strong>
-                            <span>{{ $command->signature ? 'Signed token issued' : 'Rejected before signing' }}</span>
-                        </div>
-                    </article>
-                @endforeach
-            </div>
-        </div>
-
-        <div class="panel panel--dark">
-            <div class="section-heading">
-                <div>
-                    <span class="eyebrow eyebrow--dark">Security monitoring</span>
-                    <h2>Recent anomaly events</h2>
+            <article class="metric-card">
+                <div class="metric-card__icon" style="background: #fff7ed; color: #f97316;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                 </div>
-            </div>
-            <div class="stack-list">
-                @foreach ($recentSecurityEvents as $event)
-                    <article class="list-card">
-                        <div>
-                            <h3>{{ str_replace('_', ' ', ucfirst($event->event_type)) }}</h3>
-                            <p>{{ $event->description }}</p>
-                        </div>
-                        <div class="list-card__meta">
-                            <strong>{{ ucfirst($event->severity) }}</strong>
-                            <span>{{ $event->detected_at->diffForHumans() }}</span>
-                        </div>
-                    </article>
-                @endforeach
-            </div>
+                <div class="metric-card__body">
+                    <span>Revenue</span>
+                    <strong>₱{{ number_format($stats['revenue'], 0) }}</strong>
+                    <div class="metric-card__trend trend--up">+18%</div>
+                </div>
+            </article>
         </div>
-    </section>
 
-    <section class="panel">
-        <div class="section-heading">
-            <div>
-                <span class="eyebrow">Fleet monitor</span>
-                <h2>Vehicle health and readiness</h2>
-            </div>
-        </div>
-        <div class="stack-list">
-            @foreach ($vehicles as $vehicle)
-                <article class="list-card">
-                    <div>
-                        <h3>{{ $vehicle->name }}</h3>
-                        <p>{{ ucfirst($vehicle->status) }} &middot; {{ $vehicle->location_zone }} &middot; {{ $vehicle->telemetry_summary['signal_label'] }}</p>
+        {{-- Main Dashboard Grid --}}
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px;">
+            {{-- Fleet Map --}}
+            <div class="panel" style="padding: 0; overflow: hidden;">
+                <div style="padding: 24px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="font-size: 1.25rem;">Live Fleet Map</h2>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="badge" style="background: var(--bg-soft); border: none; cursor: pointer;">Satellite</button>
+                        <button class="badge" style="background: var(--primary-soft); color: var(--primary); border: none; cursor: pointer;">Street</button>
                     </div>
-                    <div class="list-card__meta">
-                        <strong>{{ $vehicle->battery_soc }}% battery / {{ $vehicle->battery_health }}% health / {{ $vehicle->telemetry_summary['freshness_label'] }}</strong>
-                        <span>
-                            @if ($vehicle->chargingSessions->isNotEmpty())
-                                {{ ucfirst(str_replace('_', ' ', $vehicle->chargingSessions->first()->status)) }} at {{ $vehicle->chargingSessions->first()->chargingStation->name }}
-                            @elseif ($vehicle->bookings->isNotEmpty())
-                                Booking {{ $vehicle->bookings->first()->reference }}
-                            @else
-                                Ready for dispatch
-                            @endif
-                            &middot; {{ $vehicle->is_immobilized ? 'Immobilized' : ($vehicle->is_locked ? 'Locked' : 'Unlocked') }}
-                        </span>
-                    </div>
-                </article>
-            @endforeach
-        </div>
-    </section>
-
-    <section class="panel">
-        <div class="section-heading">
-            <div>
-                <span class="eyebrow">Simulation lab</span>
-                <h2>Scaling scenarios for thesis validation</h2>
+                </div>
+                <div style="height: 500px; background: #f1f5f9; position: relative; background-image: url('https://api.mapbox.com/styles/v1/mapbox/light-v10/static/125.61,7.07,12,0/800x500?access_token=pk.placeholder'); background-size: cover;">
+                    @foreach ($vehicles->take(5) as $vehicle)
+                        <div class="map-marker" style="position: absolute; top: {{ rand(20, 80) }}%; left: {{ rand(20, 80) }}%; width: 36px; height: 36px; background: {{ $vehicle->status === 'available' ? '#22c55e' : '#3b82f6' }}; border: 4px solid #fff; border-radius: 999px; box-shadow: var(--shadow-lg); display: grid; place-items: center; color: #fff; cursor: pointer;" title="{{ $vehicle->name }}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+                        </div>
+                    @endforeach
+                </div>
             </div>
-        </div>
-        <div class="simulation-grid">
-            @foreach ($simulationScenarios as $scenario)
-                <article class="simulation-card">
-                    <div>
-                        <h3>{{ $scenario['title'] }}</h3>
-                        <p>{{ $scenario['description'] }}</p>
+
+            {{-- Activity / Alerts --}}
+            <div style="display: grid; gap: 32px; align-content: start;">
+                <div class="panel">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h2 style="font-size: 1.1rem;">Operational Alerts</h2>
+                        <span class="badge badge--danger">{{ count($alerts) }}</span>
                     </div>
-                    <div class="stack-list">
-                        @foreach ($scenario['runs'] as $run)
-                            <article class="list-card">
-                                <div>
-                                    <h3>{{ $run['label'] }}</h3>
-                                    <p>Utilization {{ $run['utilization_rate'] }}% &middot; downtime {{ $run['downtime_rate'] }}%</p>
+                    <div style="display: grid; gap: 16px;">
+                        @foreach ($alerts as $alert)
+                            <article style="display: flex; gap: 16px; padding: 16px; background: var(--bg-soft); border-radius: 16px;">
+                                <div style="width: 40px; height: 40px; background: {{ $alert['level'] === 'Critical' ? '#fee2e2' : '#eff6ff' }}; color: {{ $alert['level'] === 'Critical' ? '#ef4444' : '#3b82f6' }}; border-radius: 12px; display: grid; place-items: center; flex-shrink: 0;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
                                 </div>
-                                <div class="list-card__meta">
-                                    <strong>{{ $run['charger_wait_minutes'] }} min wait</strong>
-                                    <span>{{ $run['range_risk_incidents'] }} range-risk incidents</span>
+                                <div>
+                                    <strong style="display: block; font-size: 0.94rem; margin-bottom: 4px;">{{ $alert['title'] }}</strong>
+                                    <p style="font-size: 0.82rem; color: var(--muted); margin-bottom: 8px;">{{ $alert['copy'] }}</p>
+                                    <a href="#" class="text-link" style="font-size: 0.76rem;">Resolve &rarr;</a>
                                 </div>
                             </article>
                         @endforeach
                     </div>
-                </article>
-            @endforeach
-        </div>
-    </section>
+                </div>
 
-    <section class="panel">
-        <div class="section-heading">
-            <div>
-                <span class="eyebrow">Recent reservations</span>
-                <h2>Latest booking activity</h2>
+                <div class="panel" style="background: #0f172a; color: #fff; border: none;">
+                    <h2 style="font-size: 1.1rem; margin-bottom: 16px;">System Health</h2>
+                    <div style="display: grid; gap: 16px;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 8px;">
+                                <span style="opacity: 0.7;">Fleet Connectivity</span>
+                                <strong style="color: #22c55e;">98.4%</strong>
+                            </div>
+                            <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 999px;">
+                                <div style="width: 98%; height: 100%; background: #22c55e; border-radius: inherit;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 8px;">
+                                <span style="opacity: 0.7;">Charging Network</span>
+                                <strong style="color: #3b82f6;">Active</strong>
+                            </div>
+                            <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 999px;">
+                                <div style="width: 100%; height: 100%; background: #3b82f6; border-radius: inherit;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="stack-list">
-            @foreach ($recentBookings as $booking)
-                <article class="list-card">
-                    <div>
-                        <h3>{{ $booking->reference }}</h3>
-                        <p>{{ $booking->user->name }} &middot; {{ $booking->vehicle->name }}</p>
-                    </div>
-                    <div class="list-card__meta">
-                        <strong>{{ ucfirst($booking->status) }}</strong>
-                        <span>PHP {{ number_format((float) $booking->total_cost, 2) }}</span>
-                    </div>
-                </article>
-            @endforeach
+
+        {{-- Recent Fleet Status --}}
+        <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="font-size: 1.25rem;">Live Fleet Status</h2>
+                <a href="{{ route('fleet.index') }}" class="text-link">Full Inventory &rarr;</a>
+            </div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--line); text-align: left;">
+                            <th style="padding: 16px; color: var(--muted); font-size: 0.82rem; text-transform: uppercase;">Vehicle</th>
+                            <th style="padding: 16px; color: var(--muted); font-size: 0.82rem; text-transform: uppercase;">Status</th>
+                            <th style="padding: 16px; color: var(--muted); font-size: 0.82rem; text-transform: uppercase;">Charge</th>
+                            <th style="padding: 16px; color: var(--muted); font-size: 0.82rem; text-transform: uppercase;">Location</th>
+                            <th style="padding: 16px; color: var(--muted); font-size: 0.82rem; text-transform: uppercase;">Health</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($vehicles->take(6) as $vehicle)
+                            <tr style="border-bottom: 1px solid var(--bg-soft);">
+                                <td style="padding: 16px;">
+                                    <strong>{{ $vehicle->name }}</strong>
+                                    <span style="display: block; font-size: 0.76rem; color: var(--muted);">{{ $vehicle->brand }} {{ $vehicle->model }}</span>
+                                </td>
+                                <td style="padding: 16px;">
+                                    <span class="status-pill {{ 'status-'.$vehicle->status }}">{{ $vehicle->status }}</span>
+                                </td>
+                                <td style="padding: 16px;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <strong>{{ $vehicle->battery_soc }}%</strong>
+                                        <div style="width: 48px; height: 6px; background: var(--bg-soft); border-radius: 999px;">
+                                            <div style="width: {{ $vehicle->battery_soc }}%; height: 100%; background: {{ $vehicle->battery_soc < 20 ? '#ef4444' : '#22c55e' }}; border-radius: inherit;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding: 16px; font-size: 0.88rem;">{{ $vehicle->location_zone }}</td>
+                                <td style="padding: 16px;">
+                                    <span class="badge" style="background: #f0fdf4; color: #166534;">{{ $vehicle->battery_health }}%</span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </section>
+    </div>
 @endsection

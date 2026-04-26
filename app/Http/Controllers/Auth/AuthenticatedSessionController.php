@@ -82,7 +82,7 @@ class AuthenticatedSessionController extends Controller
             'detected_at' => now(),
         ]);
 
-        return redirect()->intended(
+        return redirect(
             $user->isAdmin() ? route('admin.dashboard') : route('dashboard')
         );
     }
@@ -94,6 +94,6 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home')->with('status', 'You have been signed out.');
+        return redirect()->route('login')->with('status', 'You have been signed out.');
     }
 }
