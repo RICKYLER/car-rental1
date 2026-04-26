@@ -1471,3 +1471,466 @@ textarea {
     border: 2px solid #fff;
     border-radius: 999px;
 }
+
+/* --- Split Screen Login Modernization --- */
+
+.auth-split-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    background: #fff;
+}
+
+.auth-split-form-side {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px 80px;
+    position: relative;
+    z-index: 10;
+}
+
+.auth-split-visual-side {
+    background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-split-visual-side::before {
+    content: '';
+    position: absolute;
+    width: 140%;
+    height: 140%;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+    animation: slow-rotate 20s linear infinite;
+}
+
+@keyframes slow-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.auth-visual-asset {
+    max-width: 85%;
+    height: auto;
+    z-index: 5;
+    filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.1));
+    animation: float-asset 6s ease-in-out infinite;
+}
+
+@keyframes float-asset {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    50% { transform: translateY(-20px) rotate(1deg); }
+}
+
+.modern-form-container {
+    max-width: 440px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.modern-input-group {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.modern-field {
+    position: relative;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 12px 16px;
+    transition: all 0.2s ease;
+    background: #f8fafc;
+}
+
+.modern-field:focus-within {
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 4px var(--primary-soft);
+}
+
+.modern-field label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.modern-field span {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+}
+
+.modern-field input {
+    border: none;
+    background: transparent;
+    padding: 4px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    outline: none;
+    width: 100%;
+}
+
+.btn-modern {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+}
+
+.btn-modern:hover {
+    background: var(--primary-strong);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(59, 130, 246, 0.3);
+}
+
+.auth-header-modern {
+    margin-bottom: 40px;
+}
+
+.auth-header-modern h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+.auth-header-modern p {
+    color: var(--muted);
+    font-size: 1.1rem;
+}
+
+.social-auth-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.social-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.form-footer-modern {
+    margin-top: 32px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.form-footer-modern a {
+    color: var(--primary-strong);
+    font-weight: 700;
+}
+
+@media (max-width: 1024px) {
+    .auth-split-layout {
+        grid-template-columns: 1fr;
+    }
+    .auth-split-visual-side {
+        display: none;
+    }
+    .auth-split-form-side {
+        padding: 40px 24px;
+    }
+}
+
+/* --- Premium Vehicle Details Modernization --- */
+
+.detail-hero-modern {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 32px;
+    margin-bottom: 40px;
+}
+
+.detail-visual-panel {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    min-height: 400px;
+}
+
+.detail-visual-panel::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, var(--primary-soft) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    z-index: 0;
+}
+
+.detail-car-image {
+    max-width: 100%;
+    height: auto;
+    z-index: 1;
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15));
+    transition: transform 0.1s ease-out, filter 0.1s ease-out;
+    pointer-events: none;
+}
+
+.detail-info-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
+
+.metric-pill-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.metric-pill {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: transform 0.2s ease;
+}
+
+.metric-pill:hover {
+    transform: translateY(-2px);
+}
+
+.metric-pill__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.metric-pill__data {
+    display: grid;
+    gap: 2px;
+}
+
+.metric-pill__data span {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.metric-pill__data strong {
+    font-size: 1.1rem;
+    color: var(--text);
+}
+
+@media (max-width: 1024px) {
+    .detail-hero-modern {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Reservation Specific Enhancements */
+.reservation-hero {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.reservation-form-container {
+    background: #fff;
+    border-radius: 32px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--line);
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon svg {
+    position: absolute;
+    left: 16px;
+    color: var(--muted);
+    pointer-events: none;
+    z-index: 5;
+}
+
+.input-with-icon input, 
+.input-with-icon select,
+.input-with-icon textarea {
+    padding-left: 48px !important;
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    background: #f8fafc;
+    outline: none;
+}
+
+.input-with-icon input:focus,
+.input-with-icon select:focus,
+.input-with-icon textarea:focus {
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 4px var(--primary-soft);
+}
+
+.battery-meter-visual {
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.panel--dark .battery-meter-visual {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.battery-meter-fill {
+    height: 100%;
+    border-radius: inherit;
+    transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.battery-meter-fill--good { background: linear-gradient(90deg, #10b981, #34d399); }
+.battery-meter-fill--warn { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.battery-meter-fill--danger { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+.vehicle-hero-card {
+    position: relative;
+    padding: 28px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 28px;
+    color: #fff;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.vehicle-hero-image {
+    width: 100%;
+    height: 160px;
+    object-fit: contain;
+    margin: 20px 0;
+    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.4));
+    transform: scale(1.05);
+}
+
+.stat-card-modern {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 18px;
+    border-radius: 20px;
+    display: grid;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.stat-card-modern:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.stat-card-modern span {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.05em;
+}
+
+.stat-card-modern strong {
+    font-size: 1.35rem;
+    color: #fff;
+    font-weight: 700;
+}
+
+.confidence-indicator {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+}
+
+.confidence-indicator--good { border-left: 5px solid #10b981; }
+.confidence-indicator--warn { border-left: 5px solid #f59e0b; }
+.confidence-indicator--danger { border-left: 5px solid #ef4444; }
+
+.customer-profile-mini {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.profile-avatar-mock {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: var(--primary);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+}
+

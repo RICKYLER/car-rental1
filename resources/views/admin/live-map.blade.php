@@ -28,7 +28,7 @@
                     });
 
                     // Google Maps Hybrid/Street Style Layer
-                    L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                    L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
                         maxZoom: 20,
                         subdomains:['mt0','mt1','mt2','mt3'],
                         attribution: '&copy; Google Maps'
@@ -58,6 +58,31 @@
                         L.marker([lat, lng], {icon: customIcon})
                             .addTo(map)
                             .bindPopup(`<strong>${vehicle.name}</strong><br>Status: ${vehicle.status}<br>Battery: ${vehicle.battery_soc}%`);
+                    });
+
+                    // Add Charging Stations
+                    const stations = [
+                        { name: 'Abreeza Hub', lat: 7.0945, lng: 125.6122, rate: 18 },
+                        { name: 'SM Lanang Premier', lat: 7.1022, lng: 125.6234, rate: 20 },
+                        { name: 'Ecoland Terminal', lat: 7.0512, lng: 125.5945, rate: 12 },
+                        { name: 'Matina Town Square', lat: 7.0622, lng: 125.5999, rate: 12 }
+                    ];
+
+                    stations.forEach(station => {
+                        const stationIcon = L.divIcon({
+                            html: `
+                                <div style="background: #0f172a; width: 36px; height: 36px; border-radius: 10px; border: 3px solid #fff; box-shadow: var(--shadow-md); display: grid; place-items: center; color: #fff;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1"/><path d="M6 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><line x1="11" y1="7" x2="13" y2="7"/><line x1="11" y1="17" x2="13" y2="17"/><path d="m10 11 2 2 2-2"/></svg>
+                                </div>
+                            `,
+                            className: 'custom-div-icon',
+                            iconSize: [36, 36],
+                            iconAnchor: [18, 18]
+                        });
+
+                        L.marker([station.lat, station.lng], {icon: stationIcon})
+                            .addTo(map)
+                            .bindPopup(`<strong>${station.name} Charging Station</strong><br>Rate: ₱${station.rate}/kWh`);
                     });
 
                     L.control.zoom({ position: 'bottomright' }).addTo(map);

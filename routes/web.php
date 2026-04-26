@@ -34,6 +34,8 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
+    Route::get('/help-center', [App\Http\Controllers\HelpCenterController::class, 'index'])->name('help-center');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
     Route::middleware('role:customer')->group(function (): void {
@@ -47,6 +49,10 @@ Route::middleware(['auth', 'role:admin'])->group(function (): void {
     Route::get('/admin/live-map', [App\Http\Controllers\Admin\LiveMapController::class, 'index'])->name('admin.live-map');
     Route::get('/admin/earnings', [App\Http\Controllers\Admin\EarningsReportController::class, 'index'])->name('admin.earnings');
     Route::get('/admin/customers', [App\Http\Controllers\Admin\CustomerManagementController::class, 'index'])->name('admin.customers');
+    Route::get('/admin/maintenance', [App\Http\Controllers\Admin\MaintenanceController::class, 'index'])->name('admin.maintenance');
+    Route::get('/admin/charging-stations', [App\Http\Controllers\Admin\ChargingStationController::class, 'index'])->name('admin.charging-stations');
+    Route::get('/admin/vehicles/create', [App\Http\Controllers\Admin\VehicleController::class, 'create'])->name('admin.vehicles.create');
+    Route::post('/admin/vehicles', [App\Http\Controllers\Admin\VehicleController::class, 'store'])->name('admin.vehicles.store');
     Route::post('/admin/remote-commands', [AdminRemoteCommandController::class, 'store'])->name('admin.remote-commands.store');
     Route::post('/admin/settings/v2g', [AdminSystemSettingController::class, 'updateV2g'])->name('admin.settings.v2g');
 });

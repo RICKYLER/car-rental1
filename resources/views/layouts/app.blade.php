@@ -25,26 +25,29 @@
                     ],
                     'Fleet' => [
                         ['label' => 'All Vehicles', 'route' => 'fleet.index', 'icon' => 'car', 'active' => request()->routeIs('fleet.index')],
-                        ['label' => 'Maintenance', 'route' => 'fleet.index', 'icon' => 'wrench', 'active' => false, 'badge' => 2],
-                        ['label' => 'Charging Status', 'route' => 'fleet.index', 'icon' => 'battery-charging', 'active' => false],
+                        ['label' => 'Maintenance', 'route' => 'admin.maintenance', 'icon' => 'wrench', 'active' => request()->routeIs('admin.maintenance'), 'badge' => 2],
+                        ['label' => 'Charging Stations', 'route' => 'admin.charging-stations', 'icon' => 'battery-charging', 'active' => request()->routeIs('admin.charging-stations')],
                     ],
                     'Business' => [
                         ['label' => 'Earnings Report', 'route' => 'admin.earnings', 'icon' => 'bar-chart-3', 'active' => request()->routeIs('admin.earnings')],
                         ['label' => 'Customers', 'route' => 'admin.customers', 'icon' => 'users', 'active' => request()->routeIs('admin.customers')],
+                    ],
+                    'Support' => [
+                        ['label' => 'Help Center', 'route' => 'help-center', 'icon' => 'help-circle', 'active' => request()->routeIs('help-center')],
                     ]
                 ];
             } else {
                 $navGroups = [
                     'Adventure' => [
                         ['label' => 'Nearby Vehicles', 'route' => 'dashboard', 'icon' => 'map', 'active' => request()->routeIs('dashboard')],
-                        ['label' => 'Fleet Explorer', 'route' => 'fleet.index', 'icon' => 'search', 'active' => request()->routeIs('fleet.*')],
+                        ['label' => 'Book a Car', 'route' => 'fleet.index', 'icon' => 'plus-circle', 'active' => request()->routeIs('fleet.*')],
                     ],
                     'My ECROS' => [
                         ['label' => 'My Trips', 'route' => 'bookings.index', 'icon' => 'calendar', 'active' => request()->routeIs('bookings.*')],
-                        ['label' => 'Profile', 'route' => 'dashboard', 'icon' => 'user', 'active' => false],
+                        ['label' => 'Profile', 'route' => 'profile', 'icon' => 'user', 'active' => request()->routeIs('profile')],
                     ],
                     'Support' => [
-                        ['label' => 'Help Center', 'route' => 'home', 'icon' => 'help-circle', 'active' => false],
+                        ['label' => 'Help Center', 'route' => 'help-center', 'icon' => 'help-circle', 'active' => request()->routeIs('help-center')],
                     ]
                 ];
             }
@@ -134,7 +137,9 @@
                         <button class="btn-icon notification-btn">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
                         </button>
-                        <button class="btn btn-primary btn-primary--compact">+ Add Vehicle</button>
+                        @if($authUser?->isAdmin())
+                            <a href="{{ route('admin.vehicles.create') }}" class="btn btn-primary btn-primary--compact">+ Add Vehicle</a>
+                        @endif
                     </div>
                 </header>
 

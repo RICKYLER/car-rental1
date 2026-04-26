@@ -62,13 +62,73 @@
                         <button class="badge" style="background: var(--primary-soft); color: var(--primary); border: none; cursor: pointer;">Street</button>
                     </div>
                 </div>
-                <div style="height: 500px; background: #f1f5f9; position: relative; background-image: url('https://api.mapbox.com/styles/v1/mapbox/light-v10/static/125.61,7.07,12,0/800x500?access_token=pk.placeholder'); background-size: cover;">
-                    @foreach ($vehicles->take(5) as $vehicle)
-                        <div class="map-marker" style="position: absolute; top: {{ rand(20, 80) }}%; left: {{ rand(20, 80) }}%; width: 36px; height: 36px; background: {{ $vehicle->status === 'available' ? '#22c55e' : '#3b82f6' }}; border: 4px solid #fff; border-radius: 999px; box-shadow: var(--shadow-lg); display: grid; place-items: center; color: #fff; cursor: pointer;" title="{{ $vehicle->name }}">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
-                        </div>
-                    @endforeach
-                </div>
+                <div id="dashboard-map" style="height: 500px; background: #f1f5f9; position: relative; z-index: 1;"></div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const map = L.map('dashboard-map', {
+                            center: [7.0731, 125.6111],
+                            zoom: 12,
+                            zoomControl: false
+                        });
+
+                        L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                            maxZoom: 20,
+                            subdomains:['mt0','mt1','mt2','mt3'],
+                            attribution: '&copy; Google Maps'
+                        }).addTo(map);
+
+                        const vehicles = @json($vehicles->take(5));
+                        
+                        vehicles.forEach(vehicle => {
+                            const lat = 7.0731 + (Math.random() - 0.5) * 0.04;
+                            const lng = 125.6111 + (Math.random() - 0.5) * 0.04;
+
+                            const markerHtml = `
+                                <div style="background: ${vehicle.status === 'available' ? '#22c55e' : '#3b82f6'}; width: 32px; height: 32px; border-radius: 999px; border: 3px solid #fff; box-shadow: var(--shadow-lg); display: grid; place-items: center; color: #fff;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+                                </div>
+                            `;
+
+                            const customIcon = L.divIcon({
+                                html: markerHtml,
+                                className: 'custom-div-icon',
+                                iconSize: [32, 32],
+                                iconAnchor: [16, 16]
+                            });
+
+                            L.marker([lat, lng], {icon: customIcon})
+                                .addTo(map)
+                                .bindPopup(`<strong>${vehicle.name}</strong><br>Status: ${vehicle.status}`);
+                        });
+
+                        // Add Charging Stations
+                        const stations = [
+                            { name: 'Abreeza Hub', lat: 7.0945, lng: 125.6122, rate: 18 },
+                            { name: 'SM Lanang Premier', lat: 7.1022, lng: 125.6234, rate: 20 },
+                            { name: 'Ecoland Terminal', lat: 7.0512, lng: 125.5945, rate: 12 }
+                        ];
+
+                        stations.forEach(station => {
+                            const stationIcon = L.divIcon({
+                                html: `
+                                    <div style="background: #0f172a; width: 28px; height: 28px; border-radius: 8px; border: 2px solid #fff; box-shadow: var(--shadow-md); display: grid; place-items: center; color: #fff;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5"><path d="M15 7h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1"/><path d="M6 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><line x1="11" y1="7" x2="13" y2="7"/><line x1="11" y1="17" x2="13" y2="17"/><path d="m10 11 2 2 2-2"/></svg>
+                                    </div>
+                                `,
+                                className: 'custom-div-icon',
+                                iconSize: [28, 28],
+                                iconAnchor: [14, 14]
+                            });
+
+                            L.marker([station.lat, station.lng], {icon: stationIcon})
+                                .addTo(map)
+                                .bindPopup(`<strong>${station.name} Station</strong><br>₱${station.rate}/kWh`);
+                        });
+
+                        L.control.zoom({ position: 'bottomright' }).addTo(map);
+                    });
+                </script>
             </div>
 
             {{-- Activity / Alerts --}}

@@ -5,10 +5,19 @@
         'reserved' => 'status-reserved',
         default => 'status-maintenance',
     };
+
+    $carImage = match (true) {
+        str_contains(strtolower($vehicle->name), 'nissan leaf') => asset('images/vehicles/nissan-leaf.png'),
+        str_contains(strtolower($vehicle->name), 'tesla model 3') => asset('images/vehicles/tesla-model-3.png'),
+        str_contains(strtolower($vehicle->name), 'hyundai kona') => asset('images/vehicles/hyundai-kona.png'),
+        str_contains(strtolower($vehicle->name), 'byd dolphin') => asset('images/vehicles/byd-dolphin.png'),
+        str_contains(strtolower($vehicle->name), 'mg4') => asset('images/vehicles/mg4-electric.png'),
+        default => 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
+    };
 @endphp
 
 <article class="vehicle-card">
-    <div class="vehicle-card__visual" style="background-image: url('https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600'); background-size: cover; background-position: center;">
+    <div class="vehicle-card__visual" style="background-image: url('{{ $carImage }}'); background-size: cover; background-position: center;">
         <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 40%, rgba(0,0,0,0.6) 100%);"></div>
         
         <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: flex-start;">
@@ -46,7 +55,7 @@
                 {{ $vehicle->location_zone }}
             </div>
             <a href="{{ route('fleet.show', $vehicle) }}" class="btn btn-primary" style="min-width: 0; padding: 10px 20px; font-size: 0.82rem;">
-                @if($vehicle->status === 'available')
+                @if($vehicle->status === 'available' && auth()->user()?->isCustomer())
                     Book Now
                 @else
                     Details
